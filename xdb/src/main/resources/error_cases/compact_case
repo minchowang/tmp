@@ -1,0 +1,24 @@
+问题描述：在mysql执行以下compact任务时，得到 Unexpected exception: null
+
+
+复现步骤：
+mysql> compact fba_daily_inventory_history_report_mws;
+ERROR 1064 (HY000): Unexpected exception: null
+
+FE.log如下
+2022-08-03 11:25:06,593 WARN (starrocks-mysql-nio-pool-33|313) [ConnectProcessor.handleQuery():326] Process one query failed because unknown reason:
+java.lang.reflect.UndeclaredThrowableException: null
+        at com.sun.proxy.$Proxy28.mergeRecord(Unknown Source) ~[?:?]
+        at com.starrocks.xdb.XdbRpcClient.merge(XdbRpcClient.java:274) ~[starrocks-fe.jar:?]
+        at com.starrocks.sql.parser.XdbSqlParser.parse(XdbSqlParser.java:200) ~[starrocks-fe.jar:?]
+        at com.starrocks.qe.ConnectProcessor.handleQuery(ConnectProcessor.java:273) ~[starrocks-fe.jar:?]
+        at com.starrocks.qe.ConnectProcessor.dispatch(ConnectProcessor.java:578) ~[starrocks-fe.jar:?]
+        at com.starrocks.qe.ConnectProcessor.processOnce(ConnectProcessor.java:813) ~[starrocks-fe.jar:?]
+        at com.starrocks.mysql.nio.ReadListener.lambda$handleEvent$0(ReadListener.java:55) ~[starrocks-fe.jar:?]
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [?:1.8.0_282]
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [?:1.8.0_282]
+        at java.lang.Thread.run(Thread.java:748) [?:1.8.0_282]
+Caused by: com.baidu.jprotobuf.pbrpc.ErrorDataException: A error occurred: errorCode=62 errorMessage:method request time out, please check 'onceTalkTimeout' property. current value is:50000(MILLISECONDS) correlationId:95 timeout with bound channel =>[id: 0x2aa790cb, L:/10.49.26.50:35704 - R:/10.49.25.138:9876]
+        at com.baidu.jprotobuf.pbrpc.client.ProtobufRpcProxy.doWaitCallback(ProtobufRpcProxy.java:651) ~[jprotobuf-rpc-core-4.2.1.jar:?]
+        at com.baidu.jprotobuf.pbrpc.client.ProtobufRpcProxy.invoke(ProtobufRpcProxy.java:587) ~[jprotobuf-rpc-core-4.2.1.jar:?]
+        ... 10 more

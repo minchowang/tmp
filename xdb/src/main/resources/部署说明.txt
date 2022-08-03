@@ -1,0 +1,57 @@
+一、FE
+1.解压安装包
+2.安装mysql数据库
+    导入sql脚本
+3.配置 FE 节点
+    修改 FE 配置文件 conf/fe.conf
+        meta_dir = /app/bin/data/meta
+        //指定到之前安装的mysql数据库
+        metaIP = 192.168.1.102
+        metaPort = 3306
+        metaUser = root
+        metaPwd = 123456
+        metaDB = xdb
+4.创建路径
+    和meta_dir = /app/bin/data/meta保持一致
+5.启动 FE 节点
+6.确认 FE 启动成功
+    在 FE 进程启动后，使用 MySQL 客户端连接 FE 实例。
+    mysql -h 127.0.0.1 -P9030 -uroot
+    查看 FE 状态
+    mysql> SHOW PROC '/frontends'\G;
+
+二、WE/CN
+1.解压安装包
+2.配置 WE/CN 节点
+    修改 FE 配置文件 conf/fe.conf
+    storage_root_path = /app/bin/data/storage
+    weLog = 1
+    weWriteBlockBufSize = 10485760
+    weReadBlockBufSize = 10485760
+    weCompactInterval = 30
+    weCacheFLushInterval = 1
+    weLocalCount = 1000000
+    weCacheCount = 100000
+    weRpc = 9876
+    weHttp = 9877
+3.创建路径
+    和storage_root_path = /app/bin/data/storage保持一致
+4.启动 WE/CN 节点
+5.添加 WE/CN 节点
+    通过 MySQL 客户端添加 WE 节点 #port=9050
+    mysql> ALTER SYSTEM ADD BACKEND "host:port" WE;
+    通过 MySQL 客户端添加 CN 节点
+    mysql> ALTER SYSTEM ADD BACKEND "host:port" CN;
+    注意:
+        host 需要与 priority_networks 相匹配，
+        port 需要与 be.conf 文件中的设置的 heartbeat_service_port 相同，默认为 9050
+    如添加过程出现错误，需要通过以下命令将该 WE/CN 节点从集群移除。
+    mysql> ALTER SYSTEM DROP BACKEND "host:port";
+6.启动 WE/CN 节点
+7.确认 BE 启动成功
+    通过 MySQL 客户端确认 WE 节点是否启动成功。
+    mysql> SHOW PROC WE;
+    通过 MySQL 客户端确认 CN 节点是否启动成功。
+    mysql> SHOW PROC CN;
+    通过 MySQL 客户端确认 WE和CN 节点是否启动成功。
+    mysql> SHOW PROC;
